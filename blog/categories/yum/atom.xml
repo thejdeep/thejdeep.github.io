@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Tech Musings]]></title>
-  <link href="http://thejdeep.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: yum | Tech Musings]]></title>
+  <link href="http://thejdeep.github.io/blog/categories/yum/atom.xml" rel="self"/>
   <link href="http://thejdeep.github.io/"/>
   <updated>2015-07-01T22:51:30+05:30</updated>
   <id>http://thejdeep.github.io/</id>
@@ -48,23 +48,6 @@
 
 
 <p>In conclusion, if performance is a concern, DNF is the way to go.</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Hello World]]></title>
-    <link href="http://thejdeep.github.io/blog/2015/07/01/hello-world/"/>
-    <updated>2015-07-01T20:20:11+05:30</updated>
-    <id>http://thejdeep.github.io/blog/2015/07/01/hello-world</id>
-    <content type="html"><![CDATA[<p>Hi. I am Thejdeep.</p>
-
-<p>I am a senior studying Computer Science at National Institute of Technology, Karnataka, India. I dwelve mostly in code and design.</p>
-
-<p>People like John Carmack, Elon Musk, Linus Torvalds deeply motivate me to do what I do best.</p>
-
-<p>Here, you will be finding posts about my experiments with some fancy stuff revolving mostly around Linux, Web and Mobile.</p>
-
-<p>Feel free to reach out to me anytime. Preferably by email.</p>
 ]]></content>
   </entry>
   
