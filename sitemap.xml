@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://thejdeep.github.io/blog/2015/07/02/building-a-package-manager/</loc>
+    <lastmod>2015-07-02T08:16:09+05:30</lastmod>
+  </url>
+  <url>
+    <loc>http://thejdeep.github.io/blog/2015/07/02/yum-vs-dnf-plugin-api/</loc>
+    <lastmod>2015-07-02T07:10:20+05:30</lastmod>
+  </url>
+  <url>
     <loc>http://thejdeep.github.io/blog/2015/07/01/yum-vs-dnf/</loc>
     <lastmod>2015-07-01T22:04:07+05:30</lastmod>
   </url>
@@ -31,5 +39,17 @@
   </url>
   <url>
     <loc>http://thejdeep.github.io/blog/categories/dnf/</loc>
+  </url>
+  <url>
+    <loc>http://thejdeep.github.io/blog/categories/plugin/</loc>
+  </url>
+  <url>
+    <loc>http://thejdeep.github.io/blog/categories/api/</loc>
+  </url>
+  <url>
+    <loc>http://thejdeep.github.io/blog/categories/spm/</loc>
+  </url>
+  <url>
+    <loc>http://thejdeep.github.io/blog/categories/open-source/</loc>
   </url>
 </urlset>

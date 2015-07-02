@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: open-source | Thejdeep]]></title>
+  <link href="http://thejdeep.github.io/blog/categories/open-source/atom.xml" rel="self"/>
+  <link href="http://thejdeep.github.io/"/>
+  <updated>2015-07-02T08:52:46+05:30</updated>
+  <id>http://thejdeep.github.io/</id>
+  <author>
+    <name><![CDATA[Thejdeep Gudivada]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Building a Package Manager]]></title>
+    <link href="http://thejdeep.github.io/blog/2015/07/02/building-a-package-manager/"/>
+    <updated>2015-07-02T08:16:09+05:30</updated>
+    <id>http://thejdeep.github.io/blog/2015/07/02/building-a-package-manager</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+</feed>

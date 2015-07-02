@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: plugin | Thejdeep]]></title>
+  <link href="http://thejdeep.github.io/blog/categories/plugin/atom.xml" rel="self"/>
+  <link href="http://thejdeep.github.io/"/>
+  <updated>2015-07-02T08:52:46+05:30</updated>
+  <id>http://thejdeep.github.io/</id>
+  <author>
+    <name><![CDATA[Thejdeep Gudivada]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[YUM vs DNF Plugin API]]></title>
+    <link href="http://thejdeep.github.io/blog/2015/07/02/yum-vs-dnf-plugin-api/"/>
+    <updated>2015-07-02T07:10:20+05:30</updated>
+    <id>http://thejdeep.github.io/blog/2015/07/02/yum-vs-dnf-plugin-api</id>
+    <content type="html"><![CDATA[<p>Over the last week or so, I was looking to port a YUM Plugin to DNF after considering the various potential advantages of DNF. During the process of conversion, I noticed a few differences in the Plugin API of both:</p>
+
+<ul>
+<li>DNF plugin API doesn&rsquo;t allow you to read arguments supplied through the CLI, atleast for now. Unlike the YUM Plugin API, where the <em>conduit</em> available in the <em>args_hook</em> has a function <em>getArgs()</em> which allows me to access the CLI arguments</li>
+<li>There are a fewer number of hooks which the DNF Plugin API supports</li>
+<li>The DNF plugin <strong>has</strong> to inherit from a parent class <em>dnf.cli</em></li>
+</ul>
+
+
+<p>To make the stand on this issue more clearer, I have written a basic <em>Hello World</em> plugin using both API&rsquo;s.</p>
+
+<p>A <em>Hello World</em> plugin written using the YUM Plugin API
+<div><script src='https://gist.github.com/7146d5311940ae03d068.js'></script>
+<noscript><pre><code>from yum.plugins import PluginYumExit , TYPE_CORE, TYPE_INTERACTIVE
+
+requires_api_version = &#39;2.3&#39;
+plugin_type = (TYPE_CORE, TYPE_INTERACTIVE)
+
+def init_hook(conduit):
+        print &quot;Hello World&quot;
+</code></pre></noscript></div>
+</p>
+
+<p>Similarly, a <em>Hello World</em> plugin written using the DNF Plugin API
+<div><script src='https://gist.github.com/d2d78776110e37699e9b.js'></script>
+<noscript><pre><code>from __future__ import absolute_import
+from __future__ import unicode_literals
+from dnfpluginscore import _
+
+import dnf
+import dnf.exceptions
+import os
+
+class Test(dnf.Plugin):
+        name=&#39;test&#39;
+        def __init__(self,base,cli):
+                super(Test,self).__init__(base,cli)
+                self.base=base
+                self.cli=cli
+        def config(self):
+                print &quot;Hello World&quot;
+</code></pre></noscript></div>
+</p>
+]]></content>
+  </entry>
+  
+</feed>

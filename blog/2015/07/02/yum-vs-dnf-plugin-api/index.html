@@ -1,0 +1,122 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>YUM vs DNF Plugin API  | Thejdeep</title>
+
+	<meta name="author" content="Thejdeep Gudivada"> 
+	
+	<meta name="description" content="Over the last week or so, I was looking to port a YUM Plugin to DNF after considering the various potential advantages of DNF. During the process of &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Thejdeep" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1>Thejdeep</h1>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/archives">Archive</a></li>
+	<li><a href="/contact">Contact</a></li>
+</ul>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">YUM vs DNF Plugin API</h2>
+	<div class="entry-content"><p>Over the last week or so, I was looking to port a YUM Plugin to DNF after considering the various potential advantages of DNF. During the process of conversion, I noticed a few differences in the Plugin API of both:</p>
+
+<ul>
+<li>DNF plugin API doesn&rsquo;t allow you to read arguments supplied through the CLI, atleast for now. Unlike the YUM Plugin API, where the <em>conduit</em> available in the <em>args_hook</em> has a function <em>getArgs()</em> which allows me to access the CLI arguments</li>
+<li>There are a fewer number of hooks which the DNF Plugin API supports</li>
+<li>The DNF plugin <strong>has</strong> to inherit from a parent class <em>dnf.cli</em></li>
+</ul>
+
+
+<p>To make the stand on this issue more clearer, I have written a basic <em>Hello World</em> plugin using both API&rsquo;s.</p>
+
+<p>A <em>Hello World</em> plugin written using the YUM Plugin API</p>
+
+<div><script src='https://gist.github.com/7146d5311940ae03d068.js'></script>
+<noscript><pre><code>from yum.plugins import PluginYumExit , TYPE_CORE, TYPE_INTERACTIVE
+
+requires_api_version = &#39;2.3&#39;
+plugin_type = (TYPE_CORE, TYPE_INTERACTIVE)
+
+def init_hook(conduit):
+        print &quot;Hello World&quot;
+</code></pre></noscript></div>
+
+
+<p>Similarly, a <em>Hello World</em> plugin written using the DNF Plugin API</p>
+
+<div><script src='https://gist.github.com/d2d78776110e37699e9b.js'></script>
+<noscript><pre><code>from __future__ import absolute_import
+from __future__ import unicode_literals
+from dnfpluginscore import _
+
+import dnf
+import dnf.exceptions
+import os
+
+class Test(dnf.Plugin):
+        name=&#39;test&#39;
+        def __init__(self,base,cli):
+                super(Test,self).__init__(base,cli)
+                self.base=base
+                self.cli=cli
+        def config(self):
+                print &quot;Hello World&quot;
+</code></pre></noscript></div>
+
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-02T07:10:20+05:30" pubdate data-updated="true">Jul 2nd, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/api/'>api</a>, <a class='category' href='/blog/categories/dnf/'>dnf</a>, <a class='category' href='/blog/categories/package-management/'>package-management</a>, <a class='category' href='/blog/categories/plugin/'>plugin</a>, <a class='category' href='/blog/categories/yum/'>yum</a>
+
+</div>
+
+
+</div>
+</article>
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2015
+ Thejdeep Gudivada 
+<br>
+Powered by Octopress.
+</footer>
+	
+
+</body>
+</html>

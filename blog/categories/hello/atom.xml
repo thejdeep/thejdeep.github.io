@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: hello | Tech Musings]]></title>
+  <title><![CDATA[Category: hello | Thejdeep]]></title>
   <link href="http://thejdeep.github.io/blog/categories/hello/atom.xml" rel="self"/>
   <link href="http://thejdeep.github.io/"/>
-  <updated>2015-07-01T22:51:30+05:30</updated>
+  <updated>2015-07-02T08:52:46+05:30</updated>
   <id>http://thejdeep.github.io/</id>
   <author>
     <name><![CDATA[Thejdeep Gudivada]]></name>
