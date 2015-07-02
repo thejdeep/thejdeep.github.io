@@ -4,7 +4,7 @@
   <title><![CDATA[Category: open-source | Thejdeep]]></title>
   <link href="http://thejdeep.github.io/blog/categories/open-source/atom.xml" rel="self"/>
   <link href="http://thejdeep.github.io/"/>
-  <updated>2015-07-02T08:52:46+05:30</updated>
+  <updated>2015-07-02T18:52:38+05:30</updated>
   <id>http://thejdeep.github.io/</id>
   <author>
     <name><![CDATA[Thejdeep Gudivada]]></name>
@@ -18,7 +18,49 @@
     <link href="http://thejdeep.github.io/blog/2015/07/02/building-a-package-manager/"/>
     <updated>2015-07-02T08:16:09+05:30</updated>
     <id>http://thejdeep.github.io/blog/2015/07/02/building-a-package-manager</id>
-    <content type="html"><![CDATA[
+    <content type="html"><![CDATA[<p>As a quick weekend hack, I built a tiny package manager called <strong>spm</strong> (Please don&rsquo;t ask me to abbreviate it) which uses <a href="https://github.com/rpm-software-management/hawkey" target="_blank">Hawkey</a> and <a href="https://github.com/tojaj/librepo" target="_blank">Librepo</a> for its dependency resolution and for downloading repository metadata. If you are familiar with DNF, then you might reach a conclusion that this sounds exactly like it, but, my main intention was to build a scaled down version of DNF. I have to confess that this is no where closer to DNF in terms of the feature set. Eventually, you will agree too.</p>
+
+<p>So, I am <strong>open-sourcing</strong> it. Feel free to add to it and send me a PR. You can find the repository <a href="https://github.com/thejdeep/spm" target="_blank">here</a></p>
+
+<p>I will outline the steps that went into building spm so that you can build one too :</p>
+
+<ul>
+<li><p>Have a <strong>shell script</strong> that handles all your pre-execution steps like verbose printing and all. For example, this is the <em>install</em> pre-processing step that happens as defined in my shell script. <em>Notice how I am calling my main python driver program on line 8 for execution</em>
+<code>
+if [ "$#" -eq 2 ] &amp;&amp; [ "$1" == "install" ] ; then
+  echo ""
+  echo "SPM"
+  echo ""
+  echo "-----------------"
+  echo "Install operation"
+  echo "-----------------"
+  echo `python /home/thejdeep/install.py $1 $2`
+else
+  echo ""
+  echo "Correct Usage : spm install &lt;pkg_name&gt;"
+  echo ""
+fi
+</code></p></li>
+<li><p>In my main python program, have <strong>Hawkey</strong> configured to read my local repository. A brilliant tutorial that can help you do this can be found <a href="http://hawkey.readthedocs.org/en/latest/tutorial-py.html#loading-repositories" target="_blank">here</a>. Also, use it to perform dependency resolution as shown <a href="http://hawkey.readthedocs.org/en/latest/tutorial-py.html#resolving-things-with-goals" target="_blank">here</a></p></li>
+<li><p>I have <strong>librepo</strong> set up to download the packages for me. Lifted this part of the code from <a href="https://github.com/Tojaj/librepo/blob/master/examples/python/download_package.py" target="_blank">here</a></p></li>
+<li><p>Now that I have the packages downloaded, I can safely install them using faithful ol' <em>RPM</em> :)
+<code>
+print "Installing packages"
+print "-------------------"
+cmd_ins = "sudo rpm -ivh " + pkg_url
+subprocess.call(cmd_ins,shell=True)
+</code></p></li>
+<li>The other operations can be implemented in a similar way</li>
+</ul>
+
+
+<h3>TODO</h3>
+
+<ul>
+<li><p>Fix dependency resolution. Right now, spm works correct only for packages that do not have dependencies. <a href="https://github.com/thejdeep/spm/issues/1" target="_blank">Github Issue 1</a></p></li>
+<li><p>Support installing multiple packages and all. Package names can be supplied as strings delimited by space to the install command. <a href="https://github.com/thejdeep/spm/issues/2" target="_blank">Github Issue 2</a></p></li>
+</ul>
+
 ]]></content>
   </entry>
   

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: yum | Thejdeep]]></title>
   <link href="http://thejdeep.github.io/blog/categories/yum/atom.xml" rel="self"/>
   <link href="http://thejdeep.github.io/"/>
-  <updated>2015-07-02T08:52:46+05:30</updated>
+  <updated>2015-07-02T18:52:38+05:30</updated>
   <id>http://thejdeep.github.io/</id>
   <author>
     <name><![CDATA[Thejdeep Gudivada]]></name>
@@ -69,7 +69,7 @@ class Test(dnf.Plugin):
     <link href="http://thejdeep.github.io/blog/2015/07/01/yum-vs-dnf/"/>
     <updated>2015-07-01T22:04:07+05:30</updated>
     <id>http://thejdeep.github.io/blog/2015/07/01/yum-vs-dnf</id>
-    <content type="html"><![CDATA[<p>A lot has been said already about which of the two RPM-based package managers to choose from - YUM or DNF. All the ramblings must have clearly started when Jan from the DNF team proclaimed that <em>YUM is dead, long live DNF!</em> in one of his famous rants on why Fedora 22 will have its default package manager as DNF and not the faithful old YUM. You can find that great read <a href="http://dnf.baseurl.org/2015/05/11/yum-is-dead-long-live-dnf/">here</a>. He also states the following reasons why YUM failed :</p>
+    <content type="html"><![CDATA[<p>A lot has been said already about which of the two RPM-based package managers to choose from - YUM or DNF. All the ramblings must have clearly started when Jan from the DNF team proclaimed that <em>YUM is dead, long live DNF!</em> in one of his famous rants on why Fedora 22 will have its default package manager as DNF and not the faithful old YUM. You can find that great read <a href="http://dnf.baseurl.org/2015/05/11/yum-is-dead-long-live-dnf/" target="_blank">here</a>. He also states the following reasons why YUM failed :</p>
 
 <ul>
 <li>Broken dependency solving algorithm</li>
@@ -78,7 +78,7 @@ class Test(dnf.Plugin):
 </ul>
 
 
-<p>But, people seem to like YUM way better than DNF because it sounds better. Atleast, <a href="https://www.reddit.com/r/linux/comments/36a1wq/yum_is_dead_long_live_dnf/">this</a> thread on Reddit says so.</p>
+<p>But, people seem to like YUM way better than DNF because it sounds better. Atleast, <a href="https://www.reddit.com/r/linux/comments/36a1wq/yum_is_dead_long_live_dnf/" target="_blank">this</a> thread on Reddit says so.</p>
 
 <p>On the similar point of view, there are a plenty of advantages in using DNF. Few of them are :</p>
 
@@ -93,7 +93,7 @@ class Test(dnf.Plugin):
 
 <ul>
 <li>Its a Work In Progress. The DNF team is working hard in porting all the legacy stuff of YUM to DNF. This might take some time.</li>
-<li>Hogs bandwidth. Silently downloading metadata information in the background. Although, this can be tweaked and disabled in the configuration file, it poses to be a problem. You can read more about this issue <a href="https://hedayatvk.wordpress.com/2014/07/26/the-shiny-new-dnf-and-why-i-prefer-yum/">here</a> where the author states why he prefers YUM over DNF.</li>
+<li>Hogs bandwidth. Silently downloading metadata information in the background. Although, this can be tweaked and disabled in the configuration file, it poses to be a problem. You can read more about this issue <a href="https://hedayatvk.wordpress.com/2014/07/26/the-shiny-new-dnf-and-why-i-prefer-yum/" target="_blank">here</a> where the author states why this makes him prefer YUM over DNF.</li>
 <li>DNF Plugin API isn&rsquo;t a fully baked product. Currently, the DNF API doesn&rsquo;t support reading command line arguments supplied through the CLI.</li>
 </ul>
 
