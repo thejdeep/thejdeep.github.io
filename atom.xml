@@ -4,7 +4,7 @@
   <title><![CDATA[Thejdeep]]></title>
   <link href="http://thejdeep.github.io/atom.xml" rel="self"/>
   <link href="http://thejdeep.github.io/"/>
-  <updated>2015-07-02T18:52:38+05:30</updated>
+  <updated>2015-07-03T21:18:23+05:30</updated>
   <id>http://thejdeep.github.io/</id>
   <author>
     <name><![CDATA[Thejdeep Gudivada]]></name>
@@ -12,6 +12,82 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Using ConfigParser]]></title>
+    <link href="http://thejdeep.github.io/blog/2015/07/02/using-configparser/"/>
+    <updated>2015-07-02T19:37:53+05:30</updated>
+    <id>http://thejdeep.github.io/blog/2015/07/02/using-configparser</id>
+    <content type="html"><![CDATA[<p>So over the past month or so I have been working on some proprietary stuff at Cisco and it had to do something with writing a plugin for the YUM Package Manager, ssshhhhh :) . At the bottom of it, I realised there were a lot of global variables defined and whose initital values were required to be supplied by the end-user and these were subjected to change. So, I decided to have a configuration file which will drive my main YUM plugin. I will tell you why this is better. For the simplicity of this proof, let&rsquo;s just assume that the end-user goes ughhh. over Python and hates to get into the code to change the initial values. I can safely be sure that anyone is better off changing the key-value pairs in the configuration file than editing the source code. Hence Proved.</p>
+
+<h3>Configuration File</h3>
+
+<p>So my basic configuration file can be anything like this</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[SectionOne]
+</span><span class='line'>Name: Thej
+</span><span class='line'>Job: Developer
+</span><span class='line'>Single: True
+</span><span class='line'>
+</span><span class='line'>[SectionTwo]
+</span><span class='line'>FavoriteColor : Blue</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Python driver program</h3>
+
+<p>In my main python file, you can read the configuration file like this</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import ConfigParser
+</span><span class='line'>Config = ConfigParser.ConfigParser()
+</span><span class='line'>Config.read("~/.path_to_conf_file")
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Have a helper function that returns to me a dictionary given the name of a section</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def ConfigSectionMap(section):
+</span><span class='line'>    dict1 = {}
+</span><span class='line'>    options = Config.options(section)
+</span><span class='line'>    for option in options:
+</span><span class='line'>        try:
+</span><span class='line'>            dict1[option] = Config.get(section, option)
+</span><span class='line'>            if dict1[option] == -1:
+</span><span class='line'>                DebugPrint("skip: %s" % option)
+</span><span class='line'>        except:
+</span><span class='line'>            print("exception on %s!" % option)
+</span><span class='line'>            dict1[option] = None
+</span><span class='line'>    return dict1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that the call to the helper function returns a dictionary, I can access any value by querying the key</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Name = ConfigSectionMap("SectionOne")['name']</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Building a Package Manager]]></title>
@@ -147,7 +223,7 @@ class Test(dnf.Plugin):
     <link href="http://thejdeep.github.io/blog/2015/07/01/yum-vs-dnf/"/>
     <updated>2015-07-01T22:04:07+05:30</updated>
     <id>http://thejdeep.github.io/blog/2015/07/01/yum-vs-dnf</id>
-    <content type="html"><![CDATA[<p>A lot has been said already about which of the two RPM-based package managers to choose from - YUM or DNF. All the ramblings must have clearly started when Jan from the DNF team proclaimed that <em>YUM is dead, long live DNF!</em> in one of his famous rants on why Fedora 22 will have its default package manager as DNF and not the faithful old YUM. You can find that great read <a href="http://dnf.baseurl.org/2015/05/11/yum-is-dead-long-live-dnf/" target="_blank">here</a>. He also states the following reasons why YUM failed :</p>
+    <content type="html"><![CDATA[<p>A lot has been said already about which of the two RPM-based package managers to choose from - YUM or DNF. All the ramblings must have clearly started when Jan from the DNF team proclaimed that <em>YUM is dead, long live DNF!</em> in one of his famous rants on why Fedora 22 has its default package manager as DNF and not the faithful old YUM. You can find that great read <a href="http://dnf.baseurl.org/2015/05/11/yum-is-dead-long-live-dnf/" target="_blank">here</a>. He also states the following reasons why YUM failed :</p>
 
 <ul>
 <li>Broken dependency solving algorithm</li>

@@ -1,0 +1,145 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Using ConfigParser  | Thejdeep</title>
+
+	<meta name="author" content="Thejdeep Gudivada"> 
+	
+	<meta name="description" content="So over the past month or so I have been working on some proprietary stuff at Cisco and it had to do something with writing a plugin for the YUM &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Thejdeep" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1>Thejdeep</h1>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/archives">Archive</a></li>
+	<li><a href="/contact">Contact</a></li>
+</ul>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Using ConfigParser</h2>
+	<div class="entry-content"><p>So over the past month or so I have been working on some proprietary stuff at Cisco and it had to do something with writing a plugin for the YUM Package Manager, ssshhhhh :) . At the bottom of it, I realised there were a lot of global variables defined and whose initital values were required to be supplied by the end-user and these were subjected to change. So, I decided to have a configuration file which will drive my main YUM plugin. I will tell you why this is better. For the simplicity of this proof, let&rsquo;s just assume that the end-user goes ughhh. over Python and hates to get into the code to change the initial values. I can safely be sure that anyone is better off changing the key-value pairs in the configuration file than editing the source code. Hence Proved.</p>
+
+<h3>Configuration File</h3>
+
+<p>So my basic configuration file can be anything like this</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[SectionOne]
+</span><span class='line'>Name: Thej
+</span><span class='line'>Job: Developer
+</span><span class='line'>Single: True
+</span><span class='line'>
+</span><span class='line'>[SectionTwo]
+</span><span class='line'>FavoriteColor : Blue</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Python driver program</h3>
+
+<p>In my main python file, you can read the configuration file like this</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import ConfigParser
+</span><span class='line'>Config = ConfigParser.ConfigParser()
+</span><span class='line'>Config.read("~/.path_to_conf_file")
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Have a helper function that returns to me a dictionary given the name of a section</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def ConfigSectionMap(section):
+</span><span class='line'>    dict1 = {}
+</span><span class='line'>    options = Config.options(section)
+</span><span class='line'>    for option in options:
+</span><span class='line'>        try:
+</span><span class='line'>            dict1[option] = Config.get(section, option)
+</span><span class='line'>            if dict1[option] == -1:
+</span><span class='line'>                DebugPrint("skip: %s" % option)
+</span><span class='line'>        except:
+</span><span class='line'>            print("exception on %s!" % option)
+</span><span class='line'>            dict1[option] = None
+</span><span class='line'>    return dict1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that the call to the helper function returns a dictionary, I can access any value by querying the key</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Name = ConfigSectionMap("SectionOne")['name']</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-02T19:37:53+05:30" pubdate data-updated="true">Jul 2nd, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/python/'>python</a>, <a class='category' href='/blog/categories/tutorial/'>tutorial</a>
+
+</div>
+
+
+</div>
+</article>
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2015
+ Thejdeep Gudivada 
+<br>
+Powered by Octopress.
+</footer>
+	
+
+</body>
+</html>
