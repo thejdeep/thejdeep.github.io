@@ -1,0 +1,233 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Packaging software as RPM's  | Thejdeep</title>
+
+	<meta name="author" content="Thejdeep Gudivada"> 
+	
+	<meta name="description" content="There are times when you want to package software you have written and distribute it to others so that they can have it too. In this post, lets see &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Thejdeep" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1>Thejdeep</h1>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/archives">Archive</a></li>
+	<li><a href="/contact">Contact</a></li>
+</ul>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Packaging Software as RPM's</h2>
+	<div class="entry-content"><p>There are times when you want to package software you have written and distribute it to others so that they can have it too. In this post, lets see how we can build a RPM for your software, which basically boils down to writing a SPEC file.</p>
+
+<ul>
+<li>Before we get into the nitty-gritty details of this, make sure you have the core development tools installed. You can do this by</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo yum install rpmdevtools</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>NOTE : You should NEVER create your packages as the root user. Building RPM's as root is dangerous, because the binary files are installed on the system before being packaged, thus you must always build as normal user so you won't accidentally pollute your system. Create a new user for your package development tasks if you wish. Later don't tell me I didn't warn you :)</p><footer><strong><a href="https://fedoraproject.org/wiki/How_to_create_an_RPM_package#Preparing_your_system" target="_blank">Source</a></strong></footer></blockquote>
+
+
+<ul>
+<li>Create the required directory structure for creating a package by running the following command</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rpmdev-setuptree</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>You can now notice that ~/rpmbuild/ directory is created along with a few sub-folders inside</li>
+<li>Now that the prerequisites are ready, we can go into actually building the package</li>
+<li><em>Here&rsquo;s what I want to do</em> : I have a couple of files which I need to package. Eventually, when someone installs the package, I need those files to be copied to their respective locations. Simple ?</li>
+<li>Create a <em>tar.gz</em> package containing all the files you want to package and move it to ~/rpmbuild/SOURCES/ folder.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ mkdir ~/pkg_name
+</span><span class='line'>$ cd pkg_name
+</span><span class='line'>$ cp ~/file_1_location .
+</span><span class='line'>$ cp ~/file_2_location .
+</span><span class='line'>$ cp ~/file_3_location .
+</span><span class='line'>$ cd ..
+</span><span class='line'>$ tar cf pkg_name.tar.gz pkg_name
+</span><span class='line'>$ mv pkg_name.tar.gz ~/rpmbuild/SOURCES/</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Next, create a spec file in your ~/rpmbuild/SPECS directory</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi ~/rpmbuild/SPECS/pkg_name.spec</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>My final spec file is going to look like this. Will explain in detail in a bit</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Name: pkg_name          
+</span><span class='line'>Version: 1       
+</span><span class='line'>Release:        1%{?dist}
+</span><span class='line'>Summary:   RPM package testing     
+</span><span class='line'>
+</span><span class='line'>License:        GPL
+</span><span class='line'>URL:       None     
+</span><span class='line'>Source0:  pkg_name.tar.gz      
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>%description
+</span><span class='line'>Testing out packaging
+</span><span class='line'>
+</span><span class='line'>%prep
+</span><span class='line'>%setup -n pkg_name
+</span><span class='line'>
+</span><span class='line'>%install
+</span><span class='line'>rm -rf "$RPM_BUILD_ROOT"
+</span><span class='line'>mkdir -p "$RPM_BUILD_ROOT/etc/"
+</span><span class='line'>mkdir -p "$RPM_BUILD_ROOT/etc/yum.repos.d/"
+</span><span class='line'>mkdir -p "$RPM_BUILD_ROOT/usr/lib/yum-plugins/"
+</span><span class='line'>cp cisco_yum.conf "$RPM_BUILD_ROOT/etc/"
+</span><span class='line'>cp test.repo "$RPM_BUILD_ROOT/etc/yum.repos.d/"
+</span><span class='line'>cp test.py "$RPM_BUILD_ROOT/usr/lib/yum-plugins/"
+</span><span class='line'>
+</span><span class='line'>%files
+</span><span class='line'>/etc/
+</span><span class='line'>/usr/lib/yum-plugins/
+</span><span class='line'>
+</span><span class='line'>%clean
+</span><span class='line'>rm -rf $RPM_BUILD_ROOT
+</span><span class='line'>
+</span><span class='line'>%changelog</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Will briefly explain what those lines in the spec file mean (skipping all the self explanatory ones)</p>
+
+<p><em>Name</em> = Name of the package which should match the spec file name as well</p>
+
+<p><em>%prep</em> = Commands to uncompress the program so as to make it build-ready</p>
+
+<p><em>%setup</em> = To say what my archive unpacks to</p>
+
+<p><em>%install</em> = Commands to install the program. To copy files from build dir to buildroot dir</p>
+
+<p><em>%files</em> = List fo the files that will be installed</p>
+
+<ul>
+<li>So, thats it guys. Now that you have the spec file ready, just run this command</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rpmbuild -v -bb ~/rpmbuild/SPECS/pkg_name.spec</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>After some such verbose printing, you will(might :/) have your built RPM in ~/rpmbuild/RPMS/<your_arch>/ . Ta-da ! :)</li>
+</ul>
+
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-03T21:26:22+05:30" pubdate data-updated="true">Jul 3rd, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/package-management/'>package-management</a>, <a class='category' href='/blog/categories/rpm/'>rpm</a>, <a class='category' href='/blog/categories/tutorial/'>tutorial</a>
+
+</div>
+
+
+</div>
+</article>
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2015
+ Thejdeep Gudivada 
+<br>
+Powered by Octopress.
+</footer>
+	
+
+</body>
+</html>
