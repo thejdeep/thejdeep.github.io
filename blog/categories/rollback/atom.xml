@@ -4,7 +4,7 @@
   <title><![CDATA[Category: rollback | Thejdeep]]></title>
   <link href="http://thejdeep.github.io/blog/categories/rollback/atom.xml" rel="self"/>
   <link href="http://thejdeep.github.io/"/>
-  <updated>2015-07-05T10:00:32+05:30</updated>
+  <updated>2015-07-05T10:59:32+05:30</updated>
   <id>http://thejdeep.github.io/</id>
   <author>
     <name><![CDATA[Thejdeep Gudivada]]></name>
@@ -26,7 +26,7 @@
 
 <h3>BTRFS ah ?</h3>
 
-<p>So BTRFS or Butter FS or b-tree FS is a CoW (Copy on Write) file system for Linux. It addresses the lack of snapshots, pooling, checksums in Linux File Systems. And its stable now which means you can use it in production. Oracle has been doing it over the years.</p>
+<p>So BTRFS or Butter FS or B-tree FS is a CoW (Copy on Write) file system for Linux. It addresses the lack of snapshots, pooling, checksums in Linux File Systems. And its stable now which means you can use it in production. Oracle has been doing it over the years.</p>
 
 <h3>Taking Snapshot of the root file system</h3>
 
@@ -109,6 +109,24 @@ $ sudo su
 
 
 <p>Credits : <a href="https://www.variantweb.net/blog/rollback-root-filesystem-using-btrfs/" target="_blank">Seth Jennings</a></p>
+
+<h3>Monolith : YUM plugin</h3>
+
+<p>So, for the TL;DD (Too long didn&rsquo;t do) crowd, I have written a YUM Plugin that does all the above stuff for you when you trigger it with certain commands.</p>
+
+<p>Here&rsquo;s the Github repo <a href="https://github.com/thejdeep/Monolith" target="_blank">link</a>. You can find the installation instructions there.
+<br/></p>
+
+<h4>Usage</h4>
+
+<p>To take snapshot of the root file system
+<code>
+$ sudo yum snapshot &lt;snap_name&gt;
+</code>
+To rollback to a previous snapshot
+<code>
+$ sudo yum rollback &lt;snap_name&gt;
+</code></p>
 ]]></content>
   </entry>
   
