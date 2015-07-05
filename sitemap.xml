@@ -29,16 +29,13 @@
     <lastmod>2015-07-01T20:20:11+05:30</lastmod>
   </url>
   <url>
-    <loc>http://thejdeep.github.io/archives/</loc>
+    <loc>http://thejdeep.github.io/blog/archives/</loc>
   </url>
   <url>
     <loc>http://thejdeep.github.io/blog/</loc>
   </url>
   <url>
-    <loc>http://thejdeep.github.io/</loc>
-  </url>
-  <url>
-    <loc>http://thejdeep.github.io/blog/archives/</loc>
+    <loc>http://thejdeep.github.io/archives/</loc>
   </url>
   <url>
     <loc>http://thejdeep.github.io/about/</loc>
@@ -87,5 +84,9 @@
   </url>
   <url>
     <loc>http://thejdeep.github.io/blog/categories/rollback/</loc>
+  </url>
+  <url>
+    <loc>http://thejdeep.github.io/index.html</loc>
+    <lastmod>2015-07-05T22:16:29+05:30</lastmod>
   </url>
 </urlset>

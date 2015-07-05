@@ -7,7 +7,7 @@
 
 	<meta name="author" content="Thejdeep Gudivada"> 
 	
-	<meta name="description" content=" "> <meta name="keywords" content="">
+	<meta name="description" content="Assumption Your file system is BTRFS. Obviously right ? Problem Statement Since I do not know whether an upgrade process will be successful and that &hellip;"> <meta name="keywords" content="">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
@@ -25,9 +25,9 @@
 <body>
 	<header id="header" class="inner"><h1>Thejdeep</h1>
 <nav id="main-nav"><ul>
-	<li><a href="/">Blog</a></li>
+	<li><a href="/blog/">Blog</a></li>
 	<li><a href="/archives">Archive</a></li>
-	<li><a href="/about">About</a></li>
+	<li><a href="/">About</a></li>
 </ul>
 </nav>
 
@@ -35,6 +35,795 @@
 </header>
 
 	<div id="content" class="inner">
+
+
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2015/07/04/snapshots-and-rollbacks-in-btrfs/">
+		
+			Snapshots and Rollbacks in BTRFS</a>
+	</h2>
+	<div class="entry-content">
+		<p><strong>Assumption</strong> Your file system is BTRFS. Obviously right ?</p>
+
+<p><strong>Problem Statement</strong> Since I do not know whether an upgrade process will be successful and that I do not want to take chances with it, I need a way to rollback my filesystem to a stable state if in case something occurs and leaves my system in an inconsistent state</p>
+
+<p><strong>Answer</strong> Use BTRFS with its Snapshots/Rollback feature</p>
+
+<h3>BTRFS ah ?</h3>
+
+<p>So BTRFS or Butter FS or B-tree FS is a <a href="https://en.wikipedia.org/wiki/Copy-on-write" target="_blank">CoW (Copy on Write)</a> file system for Linux. It addresses the lack of snapshots, pooling, checksums in Linux File Systems. And its stable now which means you can use it in production. Oracle has been doing it over the years.</p>
+
+<h3>Taking a Snapshot of the root file system</h3>
+
+<ul>
+<li>Perform all of this as root</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo su</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Get the label of your btrfs volume</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># blkid | grep btrfs</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Create a mount point and mount your btrfs volume</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mkdir /test
+</span><span class='line'># mount -t btrfs -o subvolid=0 LABEL="fedora" /test
+</span><span class='line'># cd /test</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Take a snapshot of your volume</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># btrfs subvolume snapshot root snap_name</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>You have your snapshot saved as snap_name</li>
+</ul>
+
+
+<h3>Rolling back to a snapshot</h3>
+
+<ul>
+<li>Find the subvolume ID of the snapshot</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># btrfs subvolume list /test</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Set your snapshot subvolume ID as the default</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># btrfs subvolume set-default &lt;subvol_id&gt; /.</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Remove all the “rootflags=subvol=root” arguments from /boot/grub2/grub.cfg</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># sed -i 's/rootflags=subvol=root //' /boot/grub2/grub.cfg</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Thats it, reboot for effect</p></li>
+<li><p>You can confirm that you are on the sanpshot by</p></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># btrfs subvolume show /.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Credits : <a href="https://www.variantweb.net/blog/rollback-root-filesystem-using-btrfs/" target="_blank">Seth Jennings</a></p>
+
+<h3>Monolith : YUM plugin</h3>
+
+<p>So, for the TL;DD (Too long didn&rsquo;t do) crowd, I have written a YUM Plugin that does all the above stuff for you when you trigger it with certain commands.</p>
+
+<p>Here&rsquo;s the Github repo <a href="https://github.com/thejdeep/Monolith" target="_blank">link</a>. You can find the installation instructions there.</p>
+
+<p><br/></p>
+
+<h4>Usage</h4>
+
+<p>To take snapshot of the root file system</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo yum snapshot &lt;snap_name&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To rollback to a previous snapshot</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo yum rollback &lt;snap_name&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-04T16:51:11+05:30" pubdate data-updated="true">Jul 4th, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/btrfs/'>btrfs</a>, <a class='category' href='/blog/categories/file-system/'>file-system</a>, <a class='category' href='/blog/categories/open-source/'>open-source</a>, <a class='category' href='/blog/categories/rollback/'>rollback</a>, <a class='category' href='/blog/categories/snapshot/'>snapshot</a>
+
+</div>
+
+
+</div>
+</article>
+
+
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2015/07/03/packaging-software-as-rpms/">
+		
+			Packaging Software as RPM's</a>
+	</h2>
+	<div class="entry-content">
+		<p>There are times when you want to package software you have written and distribute it to others so that they can have it too. In this post, lets see how we can build a RPM for your software, which basically boils down to writing a SPEC file.</p>
+
+<ul>
+<li>Before we get into the nitty-gritty details of this, make sure you have the core development tools installed. You can do this by</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo yum install rpmdevtools</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>NOTE : You should NEVER create your packages as the root user. Building RPM's as root is dangerous, because the binary files are installed on the system before being packaged, thus you must always build as normal user so you won't accidentally pollute your system. Create a new user for your package development tasks if you wish. Later don't tell me I didn't warn you :)</p><footer><strong><a href="https://fedoraproject.org/wiki/How_to_create_an_RPM_package#Preparing_your_system" target="_blank">Source</a></strong></footer></blockquote>
+
+
+<ul>
+<li>Create the required directory structure for creating a package by running the following command</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rpmdev-setuptree</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>You can now notice that ~/rpmbuild/ directory is created along with a few sub-folders inside</li>
+<li>Now that the prerequisites are ready, we can go into actually building the package</li>
+<li><em>Here&rsquo;s what I want to do</em> : I have a couple of files which I need to package. Eventually, when someone installs the package, I need those files to be copied to their respective locations. Simple ?</li>
+<li>Create a <em>tar.gz</em> package containing all the files you want to package and move it to ~/rpmbuild/SOURCES/ folder.</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ mkdir ~/pkg_name
+</span><span class='line'>$ cd pkg_name
+</span><span class='line'>$ cp ~/file_1_location .
+</span><span class='line'>$ cp ~/file_2_location .
+</span><span class='line'>$ cp ~/file_3_location .
+</span><span class='line'>$ cd ..
+</span><span class='line'>$ tar cf pkg_name.tar.gz pkg_name
+</span><span class='line'>$ mv pkg_name.tar.gz ~/rpmbuild/SOURCES/</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Next, create a spec file in your ~/rpmbuild/SPECS directory</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ vi ~/rpmbuild/SPECS/pkg_name.spec</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>My final spec file is going to look like this. Will explain in detail in a bit</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Name: pkg_name          
+</span><span class='line'>Version: 1       
+</span><span class='line'>Release:        1%{?dist}
+</span><span class='line'>Summary:   RPM package testing     
+</span><span class='line'>
+</span><span class='line'>License:        GPL
+</span><span class='line'>URL:       None     
+</span><span class='line'>Source0:  pkg_name.tar.gz      
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>%description
+</span><span class='line'>Testing out packaging
+</span><span class='line'>
+</span><span class='line'>%prep
+</span><span class='line'>%setup -n pkg_name
+</span><span class='line'>
+</span><span class='line'>%install
+</span><span class='line'>rm -rf "$RPM_BUILD_ROOT"
+</span><span class='line'>mkdir -p "$RPM_BUILD_ROOT/etc/"
+</span><span class='line'>mkdir -p "$RPM_BUILD_ROOT/etc/yum.repos.d/"
+</span><span class='line'>mkdir -p "$RPM_BUILD_ROOT/usr/lib/yum-plugins/"
+</span><span class='line'>cp cisco_yum.conf "$RPM_BUILD_ROOT/etc/"
+</span><span class='line'>cp test.repo "$RPM_BUILD_ROOT/etc/yum.repos.d/"
+</span><span class='line'>cp test.py "$RPM_BUILD_ROOT/usr/lib/yum-plugins/"
+</span><span class='line'>
+</span><span class='line'>%files
+</span><span class='line'>/etc/
+</span><span class='line'>/usr/lib/yum-plugins/
+</span><span class='line'>
+</span><span class='line'>%clean
+</span><span class='line'>rm -rf $RPM_BUILD_ROOT
+</span><span class='line'>
+</span><span class='line'>%changelog</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Will briefly explain what those lines in the spec file mean (skipping all the self explanatory ones)</p>
+
+<p><em>Name</em> = Name of the package which should match the spec file name as well</p>
+
+<p><em>%prep</em> = Commands to uncompress the program so as to make it build-ready</p>
+
+<p><em>%setup</em> = To say what my archive unpacks to</p>
+
+<p><em>%install</em> = Commands to install the program. To copy files from build dir to buildroot dir</p>
+
+<p><em>%files</em> = List fo the files that will be installed</p>
+
+<ul>
+<li>So, thats it guys. Now that you have the spec file ready, just run this command</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ rpmbuild -v -bb ~/rpmbuild/SPECS/pkg_name.spec</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>After some such verbose printing, you will(might :/) have your built RPM in ~/rpmbuild/RPMS/<your_arch>/ . Ta-da ! :)</li>
+</ul>
+
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-03T21:26:22+05:30" pubdate data-updated="true">Jul 3rd, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/package-management/'>package-management</a>, <a class='category' href='/blog/categories/rpm/'>rpm</a>, <a class='category' href='/blog/categories/tutorial/'>tutorial</a>
+
+</div>
+
+
+</div>
+</article>
+
+
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2015/07/02/using-configparser/">
+		
+			Using ConfigParser</a>
+	</h2>
+	<div class="entry-content">
+		<p>So over the past month or so I have been working on some proprietary stuff at Cisco and it had to do something with writing a plugin for the YUM Package Manager, ssshhhhh :) . At the bottom of it, I realised there were a lot of global variables defined and whose initial values were required to be supplied by the end-user and these were subjected to change. So, I decided to have a configuration file which will drive my main YUM plugin. I will tell you why this is better. For the simplicity of this proof, let&rsquo;s just assume that the end-user goes ughhh. over Python and hates to get into the code to change the initial values. I can safely be sure that anyone would be better off changing the key-value pairs in the configuration file than editing the source code. Hence Proved.</p>
+
+<h3>Configuration File</h3>
+
+<p>So my basic configuration file can be anything like this</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[SectionOne]
+</span><span class='line'>Name: Thej
+</span><span class='line'>Job: Developer
+</span><span class='line'>Single: True
+</span><span class='line'>
+</span><span class='line'>[SectionTwo]
+</span><span class='line'>FavoriteColor : Blue</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Python driver program</h3>
+
+<p>In my main python file, you can read the configuration file like this</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>import ConfigParser
+</span><span class='line'>Config = ConfigParser.ConfigParser()
+</span><span class='line'>Config.read("~/.path_to_conf_file")
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Have a helper function that returns to me a dictionary given the name of a section</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>def ConfigSectionMap(section):
+</span><span class='line'>    dict1 = {}
+</span><span class='line'>    options = Config.options(section)
+</span><span class='line'>    for option in options:
+</span><span class='line'>        try:
+</span><span class='line'>            dict1[option] = Config.get(section, option)
+</span><span class='line'>            if dict1[option] == -1:
+</span><span class='line'>                DebugPrint("skip: %s" % option)
+</span><span class='line'>        except:
+</span><span class='line'>            print("exception on %s!" % option)
+</span><span class='line'>            dict1[option] = None
+</span><span class='line'>    return dict1</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now that the call to the helper function returns a dictionary, I can access any value by querying the key</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Name = ConfigSectionMap("SectionOne")['name']</span></code></pre></td></tr></table></div></figure>
+
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-02T19:37:53+05:30" pubdate data-updated="true">Jul 2nd, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/python/'>python</a>, <a class='category' href='/blog/categories/tutorial/'>tutorial</a>
+
+</div>
+
+
+</div>
+</article>
+
+
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2015/07/02/building-a-package-manager/">
+		
+			Building a Package Manager</a>
+	</h2>
+	<div class="entry-content">
+		<p>As a quick weekend hack, I built a tiny package manager called <strong>spm</strong> (Please don&rsquo;t ask me to abbreviate it) which uses <a href="https://github.com/rpm-software-management/hawkey" target="_blank">Hawkey</a> and <a href="https://github.com/tojaj/librepo" target="_blank">Librepo</a> for its dependency resolution and for downloading repository metadata. If you are familiar with DNF, then you might reach a conclusion that this sounds exactly like it, but, my main intention was to build a scaled down version of DNF. I have to confess that this is no where closer to DNF in terms of the feature set. Eventually, you will agree too.</p>
+
+<p>So, I am <strong>open-sourcing</strong> it. Feel free to add to it and send me a PR. You can find the repository <a href="https://github.com/thejdeep/spm" target="_blank">here</a></p>
+
+<p>I will outline the steps that went into building spm so that you can build one too :</p>
+
+<ul>
+<li>Have a <strong>shell script</strong> that handles all your pre-execution steps like verbose printing and all. For example, this is the <em>install</em> pre-processing step that happens as defined in my shell script. <em>Notice how I am calling my main python driver program on line 8 for execution</em></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if [ "$#" -eq 2 ] && [ "$1" == "install" ] ; then
+</span><span class='line'>  echo ""
+</span><span class='line'>  echo "SPM"
+</span><span class='line'>  echo ""
+</span><span class='line'>  echo "-----------------"
+</span><span class='line'>  echo "Install operation"
+</span><span class='line'>  echo "-----------------"
+</span><span class='line'>  echo `python /home/thejdeep/install.py $1 $2`
+</span><span class='line'>else
+</span><span class='line'>  echo ""
+</span><span class='line'>  echo "Correct Usage : spm install &lt;pkg_name&gt;"
+</span><span class='line'>  echo ""
+</span><span class='line'>fi</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>In my main python program, have <strong>Hawkey</strong> configured to read my local repository. A brilliant tutorial that can help you do this can be found <a href="http://hawkey.readthedocs.org/en/latest/tutorial-py.html#loading-repositories" target="_blank">here</a>. Also, use it to perform dependency resolution as shown <a href="http://hawkey.readthedocs.org/en/latest/tutorial-py.html#resolving-things-with-goals" target="_blank">here</a></p></li>
+<li><p>I have <strong>librepo</strong> set up to download the packages for me. Lifted this part of the code from <a href="https://github.com/Tojaj/librepo/blob/master/examples/python/download_package.py" target="_blank">here</a></p></li>
+<li><p>Now that I have the packages downloaded, I can safely install them using faithful ol' <em>RPM</em> :)</p></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>print "Installing packages"
+</span><span class='line'>print "-------------------"
+</span><span class='line'>cmd_ins = "sudo rpm -ivh " + pkg_url
+</span><span class='line'>subprocess.call(cmd_ins,shell=True)</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>The other operations can be implemented in a similar way</li>
+</ul>
+
+
+<h3>TODO</h3>
+
+<ul>
+<li><p>Fix dependency resolution. Right now, spm works correct only for packages that do not have dependencies. <a href="https://github.com/thejdeep/spm/issues/1" target="_blank">Github Issue 1</a></p></li>
+<li><p>Support installing multiple packages and all. Package names can be supplied as strings delimited by space to the install command. <a href="https://github.com/thejdeep/spm/issues/2" target="_blank">Github Issue 2</a></p></li>
+</ul>
+
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-02T08:16:09+05:30" pubdate data-updated="true">Jul 2nd, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/open-source/'>open-source</a>, <a class='category' href='/blog/categories/package-management/'>package-management</a>, <a class='category' href='/blog/categories/spm/'>spm</a>
+
+</div>
+
+
+</div>
+</article>
+
+
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2015/07/02/yum-vs-dnf-plugin-api/">
+		
+			YUM vs DNF Plugin API</a>
+	</h2>
+	<div class="entry-content">
+		<p>Over the last week or so, I was looking to port a YUM Plugin to DNF after considering the various potential advantages of DNF. During the process of conversion, I noticed a few differences in the Plugin API of both:</p>
+
+<ul>
+<li>DNF plugin API doesn&rsquo;t allow you to read arguments supplied through the CLI, atleast for now. Unlike the YUM Plugin API, where the <em>conduit</em> available in the <em>args_hook</em> has a function <em>getArgs()</em> which allows me to access the CLI arguments</li>
+<li>There are a fewer number of hooks which the DNF Plugin API supports</li>
+<li>The DNF plugin <strong>has</strong> to inherit from a parent class <em>dnf.cli</em></li>
+</ul>
+
+
+<p>To make the stand on this issue more clearer, I have written a basic <em>Hello World</em> plugin using both API&rsquo;s.</p>
+
+<p>A <em>Hello World</em> plugin written using the YUM Plugin API</p>
+
+<div><script src='https://gist.github.com/7146d5311940ae03d068.js'></script>
+<noscript><pre><code>from yum.plugins import PluginYumExit , TYPE_CORE, TYPE_INTERACTIVE
+
+requires_api_version = &#39;2.3&#39;
+plugin_type = (TYPE_CORE, TYPE_INTERACTIVE)
+
+def init_hook(conduit):
+        print &quot;Hello World&quot;
+</code></pre></noscript></div>
+
+
+<p>Similarly, a <em>Hello World</em> plugin written using the DNF Plugin API</p>
+
+<div><script src='https://gist.github.com/d2d78776110e37699e9b.js'></script>
+<noscript><pre><code>from __future__ import absolute_import
+from __future__ import unicode_literals
+from dnfpluginscore import _
+
+import dnf
+import dnf.exceptions
+import os
+
+class Test(dnf.Plugin):
+        name=&#39;test&#39;
+        def __init__(self,base,cli):
+                super(Test,self).__init__(base,cli)
+                self.base=base
+                self.cli=cli
+        def config(self):
+                print &quot;Hello World&quot;
+</code></pre></noscript></div>
+
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-02T07:10:20+05:30" pubdate data-updated="true">Jul 2nd, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/api/'>api</a>, <a class='category' href='/blog/categories/dnf/'>dnf</a>, <a class='category' href='/blog/categories/package-management/'>package-management</a>, <a class='category' href='/blog/categories/plugin/'>plugin</a>, <a class='category' href='/blog/categories/yum/'>yum</a>
+
+</div>
+
+
+</div>
+</article>
+
+
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2015/07/01/yum-vs-dnf/">
+		
+			YUM vs DNF</a>
+	</h2>
+	<div class="entry-content">
+		<p>A lot has been said already about which of the two RPM-based package managers to choose from - YUM or DNF. All the ramblings must have clearly started when Jan from the DNF team proclaimed that <em>YUM is dead, long live DNF!</em> in one of his famous rants on why Fedora 22 has its default package manager as DNF and not the faithful old YUM. You can find that great read <a href="http://dnf.baseurl.org/2015/05/11/yum-is-dead-long-live-dnf/" target="_blank">here</a>. He also states the following reasons why YUM failed :</p>
+
+<ul>
+<li>Broken dependency solving algorithm</li>
+<li>Undocumented API</li>
+<li>Inability to refactor internal functions</li>
+</ul>
+
+
+<p>But, people seem to like YUM way better than DNF because it sounds better. Atleast, <a href="https://www.reddit.com/r/linux/comments/36a1wq/yum_is_dead_long_live_dnf/" target="_blank">this</a> thread on Reddit says so.</p>
+
+<p>On the similar point of view, there are a plenty of advantages in using DNF. Few of them are :</p>
+
+<ul>
+<li>Uses a successful low-level SAT solver library for resolving dependencies. SUSE has been using this in production over the years</li>
+<li>Downloading of the repository metadata and packages is done by Librepo, which is another component used by DNF.</li>
+<li>Proven to be times faster than YUM. You can try running a list command in each.</li>
+</ul>
+
+
+<p>Although, DNF seems to fit the puzzle, there are a few disadvantages that might hold it back :</p>
+
+<ul>
+<li>Its a Work In Progress. The DNF team is working hard in porting all the legacy stuff of YUM to DNF. This might take some time.</li>
+<li>Hogs bandwidth. Silently downloading metadata information in the background. Although, this can be tweaked and disabled in the configuration file, it poses to be a problem. You can read more about this issue <a href="https://hedayatvk.wordpress.com/2014/07/26/the-shiny-new-dnf-and-why-i-prefer-yum/" target="_blank">here</a> where the author states why this makes him prefer YUM over DNF.</li>
+<li>DNF Plugin API isn&rsquo;t a fully baked product. Currently, the DNF API doesn&rsquo;t support reading command line arguments supplied through the CLI.</li>
+</ul>
+
+
+<p>In conclusion, if performance is a concern, DNF is the way to go.</p>
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-01T22:04:07+05:30" pubdate data-updated="true">Jul 1st, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/dnf/'>dnf</a>, <a class='category' href='/blog/categories/package-management/'>package-management</a>, <a class='category' href='/blog/categories/yum/'>yum</a>
+
+</div>
+
+
+</div>
+</article>
+
+
+    <article class="post">
+	<h2 class="title">
+		
+		<a href="/blog/2015/07/01/hello-world/">
+		
+			Hello World</a>
+	</h2>
+	<div class="entry-content">
+		<p>Hi. I am Thejdeep.</p>
+
+<p>I am a senior studying Computer Science at National Institute of Technology, Karnataka, India. I dwelve mostly in code and design.</p>
+
+<p>People like John Carmack, Elon Musk, Linus Torvalds deeply motivate me to do what I do best.</p>
+
+<p>Here, you will be finding posts about my experiments with some fancy stuff revolving mostly around Linux, Web and Mobile.</p>
+
+<p>Feel free to reach out to me anytime. Preferably by email.</p>
+
+		
+		
+	</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-01T20:20:11+05:30" pubdate data-updated="true">Jul 1st, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/hello/'>hello</a>
+
+</div>
+
+
+</div>
+</article>
 
 <nav id="pagenavi">
     
