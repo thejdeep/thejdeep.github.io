@@ -4,7 +4,7 @@
   <title><![CDATA[Thejdeep]]></title>
   <link href="http://thejdeep.github.io/atom.xml" rel="self"/>
   <link href="http://thejdeep.github.io/"/>
-  <updated>2015-07-05T11:08:08+05:30</updated>
+  <updated>2015-07-05T11:37:53+05:30</updated>
   <id>http://thejdeep.github.io/</id>
   <author>
     <name><![CDATA[Thejdeep Gudivada]]></name>
@@ -28,7 +28,7 @@
 
 <p>So BTRFS or Butter FS or B-tree FS is a <a href="https://en.wikipedia.org/wiki/Copy-on-write" target="_blank">CoW (Copy on Write)</a> file system for Linux. It addresses the lack of snapshots, pooling, checksums in Linux File Systems. And its stable now which means you can use it in production. Oracle has been doing it over the years.</p>
 
-<h3>Taking Snapshot of the root file system</h3>
+<h3>Taking a Snapshot of the root file system</h3>
 
 <ul>
 <li>Perform all of this as root</li>
@@ -75,7 +75,7 @@
 </ul>
 
 
-<h3>Rolling back using a snapshot</h3>
+<h3>Rolling back to a snapshot</h3>
 
 <ul>
 <li>Find the subvolume ID of the snapshot</li>
