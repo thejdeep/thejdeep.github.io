@@ -1,0 +1,174 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Snapshots and Rollbacks in BTRFS  | Thejdeep</title>
+
+	<meta name="author" content="Thejdeep Gudivada"> 
+	
+	<meta name="description" content="Assumption Your file system is BTRFS. Obviously right ? Problem Statement Since I do not know whether an upgrade process will be successful and that &hellip;"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="Thejdeep" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+</head>
+
+
+
+<body>
+	<header id="header" class="inner"><h1>Thejdeep</h1>
+<nav id="main-nav"><ul>
+	<li><a href="/">Blog</a></li>
+	<li><a href="/archives">Archive</a></li>
+	<li><a href="/contact">Contact</a></li>
+</ul>
+</nav>
+
+
+</header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Snapshots and Rollbacks in BTRFS</h2>
+	<div class="entry-content"><p><strong>Assumption</strong> Your file system is BTRFS. Obviously right ?</p>
+
+<p><strong>Problem Statement</strong> Since I do not know whether an upgrade process will be successful and that I do not want to take chances with it, I need a way to rollback my filesystem to a stable state if in case something occurs and leaves my system in an inconsistent state</p>
+
+<p><strong>Answer</strong> Use BTRFS with its Snapshots/Rollback feature</p>
+
+<h3>BTRFS ah ?</h3>
+
+<p>So BTRFS or Butter FS or b-tree FS is a CoW (Copy on Write) file system for Linux. It addresses the lack of snapshots, pooling, checksums in Linux File Systems. And its stable now which means you can use it in production. Oracle has been doing it over the years.</p>
+
+<h3>Taking Snapshot of the root file system</h3>
+
+<ul>
+<li>Perform all of this as root</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ sudo su</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Get the label of your btrfs volume</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># blkid | grep btrfs</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Create a mount point and mount your btrfs volume</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># mkdir /test
+</span><span class='line'># mount -t btrfs -o subvolid=0 LABEL="fedora" /test
+</span><span class='line'># cd /test</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Take a snapshot of your volume</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># btrfs subvolume snapshot root snap_name</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>You have your snapshot saved as snap_name</li>
+</ul>
+
+
+<h3>Rolling back using a snapshot</h3>
+
+<ul>
+<li>Find the subvolume ID of the snapshot</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># btrfs subvolume list /test</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Set your snapshot subvolume ID as the default</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># btrfs subvolume set-default &lt;subvol_id&gt; /.</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Remove all the “rootflags=subvol=root” arguments from /boot/grub2/grub.cfg</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># sed -i 's/rootflags=subvol=root //' /boot/grub2/grub.cfg</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li><p>Thats it, reboot for effect</p></li>
+<li><p>You can confirm that you are on the sanpshot by</p></li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'># btrfs subvolume show /.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Credits : <a href="https://www.variantweb.net/blog/rollback-root-filesystem-using-btrfs/" target="_blank">Seth Jennings</a></p>
+</div>
+
+
+<div class="meta">
+	<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-04T16:51:11+05:30" pubdate data-updated="true">Jul 4th, 2015</time></div>
+	
+
+<div class="tags">
+
+	<a class='category' href='/blog/categories/btrfs/'>btrfs</a>, <a class='category' href='/blog/categories/file-system/'>file-system</a>, <a class='category' href='/blog/categories/rollback/'>rollback</a>, <a class='category' href='/blog/categories/snapshot/'>snapshot</a>
+
+</div>
+
+
+</div>
+</article>
+</div>
+	<footer id="footer" class="inner">Copyright &copy; 2015
+ Thejdeep Gudivada 
+<br>
+Powered by Octopress.
+</footer>
+	
+
+</body>
+</html>

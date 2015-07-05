@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: btrfs | Thejdeep]]></title>
+  <link href="http://thejdeep.github.io/blog/categories/btrfs/atom.xml" rel="self"/>
+  <link href="http://thejdeep.github.io/"/>
+  <updated>2015-07-05T10:00:32+05:30</updated>
+  <id>http://thejdeep.github.io/</id>
+  <author>
+    <name><![CDATA[Thejdeep Gudivada]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Snapshots and Rollbacks in BTRFS]]></title>
+    <link href="http://thejdeep.github.io/blog/2015/07/04/snapshots-and-rollbacks-in-btrfs/"/>
+    <updated>2015-07-04T16:51:11+05:30</updated>
+    <id>http://thejdeep.github.io/blog/2015/07/04/snapshots-and-rollbacks-in-btrfs</id>
+    <content type="html"><![CDATA[<p><strong>Assumption</strong> Your file system is BTRFS. Obviously right ?</p>
+
+<p><strong>Problem Statement</strong> Since I do not know whether an upgrade process will be successful and that I do not want to take chances with it, I need a way to rollback my filesystem to a stable state if in case something occurs and leaves my system in an inconsistent state</p>
+
+<p><strong>Answer</strong> Use BTRFS with its Snapshots/Rollback feature</p>
+
+<h3>BTRFS ah ?</h3>
+
+<p>So BTRFS or Butter FS or b-tree FS is a CoW (Copy on Write) file system for Linux. It addresses the lack of snapshots, pooling, checksums in Linux File Systems. And its stable now which means you can use it in production. Oracle has been doing it over the years.</p>
+
+<h3>Taking Snapshot of the root file system</h3>
+
+<ul>
+<li>Perform all of this as root
+<code>
+$ sudo su
+</code></li>
+<li>Get the label of your btrfs volume
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>&lt;h1&gt;blkid | grep btrfs&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;```&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;Create a mount point and mount your btrfs volume</span></code></pre></td></tr></table></div></figure>
+
+<h1>mkdir /test</h1>
+
+<h1>mount -t btrfs -o subvolid=0 LABEL=&ldquo;fedora&rdquo; /test</h1>
+
+<h1>cd /test</h1>
+
+<p>```</p></li>
+<li>Take a snapshot of your volume
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>&lt;h1&gt;btrfs subvolume snapshot root snap_name&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;```&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;You have your snapshot saved as snap_name&lt;/li&gt;
+</span><span class='line'>&lt;/ul&gt;
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>&lt;h3&gt;Rolling back using a snapshot&lt;/h3&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;ul&gt;
+</span><span class='line'>&lt;li&gt;Find the subvolume ID of the snapshot</span></code></pre></td></tr></table></div></figure>
+
+<h1>btrfs subvolume list /test</h1>
+
+<p>```</p></li>
+<li>Set your snapshot subvolume ID as the default
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>
+</span><span class='line'>&lt;h1&gt;btrfs subvolume set-default &lt;subvol_id&gt; /.&lt;/h1&gt;
+</span><span class='line'>
+</span><span class='line'>&lt;p&gt;```&lt;/p&gt;&lt;/li&gt;
+</span><span class='line'>&lt;li&gt;Remove all the “rootflags=subvol=root” arguments from /boot/grub2/grub.cfg</span></code></pre></td></tr></table></div></figure>
+
+<h1>sed -i &rsquo;s/rootflags=subvol=root //&lsquo; /boot/grub2/grub.cfg</h1>
+
+<p>```</p></li>
+<li><p>Thats it, reboot for effect</p></li>
+<li><p>You can confirm that you are on the sanpshot by
+```</p>
+
+<h1>btrfs subvolume show /.</h1>
+
+<p>```</p></li>
+</ul>
+
+
+<p>Credits : <a href="https://www.variantweb.net/blog/rollback-root-filesystem-using-btrfs/" target="_blank">Seth Jennings</a></p>
+]]></content>
+  </entry>
+  
+</feed>
