@@ -32,13 +32,16 @@
     <loc>http://thejdeep.github.io/archives/</loc>
   </url>
   <url>
-    <loc>http://thejdeep.github.io/blog/archives/</loc>
-  </url>
-  <url>
     <loc>http://thejdeep.github.io/blog/</loc>
   </url>
   <url>
     <loc>http://thejdeep.github.io/</loc>
+  </url>
+  <url>
+    <loc>http://thejdeep.github.io/blog/archives/</loc>
+  </url>
+  <url>
+    <loc>http://thejdeep.github.io/about/</loc>
   </url>
   <url>
     <loc>http://thejdeep.github.io/blog/categories/hello/</loc>
